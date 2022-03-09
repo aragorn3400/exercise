@@ -1,13 +1,18 @@
+*&---------------------------------------------------------------------*
+*& Report ZKO_ECERCISE_CUROD_01
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
 REPORT ZKO_ECERCISE_CUROD_01.
 
 *Şimdi bu 4 komutun da kullanıldığı örnek bir rapor yazalım. Senaryomuz su şekilde olacak. Müşteri
 *bizden bir rapor istesin. Bu raporun kullanarak belirli bir database tablosundan istedi satırları okuyup
 *ekrana yazdırabilsin, yeni kayıt oluşturabilsin, var olan kaydı güncelleyebilsin ve silebilsin.
 
-*üstteki çalışmadan  farklı olarak;
-*-create da her alan doldurulmadan  kaydedilmeyecek özelliği getirildi, kayıtta her alanın doldurulmasını zorunlu kılıyor.
-*-update  sadece dolu alanları güncelliyor 
-*- Read de sadece isim veya soyisim ilede  arama yapılabiliyor.
+*ZKO_ECERCISE_CUROD dan farklı olarak;
+*-create da her alan doldurulmadan  kaydetmeyecek özelliği getirildi, kayıtta her alanın doldurulmasını zorunlu kılıyor.
+*-update  sadece dolu alanları güncelliyor
+*- Read de isim ,syisim  arama yapılabiliyor.isim ve soyisim beraber girince sadce o kaydı getiriyor.
 
 
 DATA: gs_str_01  TYPE  zko_deneme_t,
@@ -43,7 +48,7 @@ IF p_create = abap_true.
       MESSAGE 'Aynı numaraya sahip iki kayıt olamaz,lütfen numarayı değistirin' TYPE 'S' DISPLAY LIKE 'E'.
 
 
-    ELSE."5
+    ELSE.
 
       IF p_name   IS NOT INITIAL.
 
@@ -105,16 +110,42 @@ IF p_create = abap_true.
 ELSEIF p_read = abap_true.
 
   IF p_num IS INITIAL .
-*
-    IF p_name IS INITIAL .
 
-      IF p_sname IS INITIAL .
+    IF p_name IS INITIAL AND p_sname IS INITIAL .
 
-          SELECT * FROM zko_deneme_t INTO TABLE gt_table_1.
 
-             IF sy-subrc = 0.
 
-                 LOOP AT gt_table_1 INTO gs_str_01.
+    SELECT * FROM zko_deneme_t INTO TABLE gt_table_1.
+
+      IF sy-subrc = 0.
+
+
+
+      LOOP AT gt_table_1 INTO gs_str_01.
+
+        WRITE:  / gs_str_01-num ,
+                / gs_str_01-name ,
+                / gs_str_01-surname,
+                / gs_str_01-arac .
+        SKIP.
+        ULINE.
+        CLEAR gs_str_01.
+      ENDLOOP.
+
+      ELSE.
+
+      MESSAGE 'Tabloda herhangi bir kayıt bulunmamaktadır.' TYPE 'S' DISPLAY LIKE 'E'.
+
+      ENDIF.
+    ELSEIF p_name IS NOT INITIAL .
+
+      IF p_sname IS INITIAL.
+
+        SELECT  * FROM zko_deneme_t INTO TABLE gt_table_1 WHERE name = p_name .
+
+            IF sy-subrc = 0.
+
+                LOOP AT gt_table_1 INTO gs_str_01.
 
                   WRITE:  / gs_str_01-num ,
                   / gs_str_01-name ,
@@ -123,15 +154,17 @@ ELSEIF p_read = abap_true.
                   SKIP.
                   ULINE.
                   CLEAR gs_str_01.
-                  ENDLOOP.
+                ENDLOOP.
+
              ELSE.
 
-                MESSAGE 'Tabloda herhangi bir kayıt bulunmamaktadır.' TYPE 'S' DISPLAY LIKE 'E'.
+               MESSAGE 'ISTENEN KAYITLAR BULUNAMADI' TYPE'S' DISPLAY LIKE 'E'.
 
-             ENDIF.
+              ENDIF.
         ELSE.
 
-          SELECT  * FROM zko_deneme_t INTO TABLE gt_table_1 WHERE surname = p_sname .
+          SELECT  * FROM zko_deneme_t INTO TABLE gt_table_1 WHERE name = p_name AND
+                                                                  surname = p_sname.
 
             IF sy-subrc = 0.
 
@@ -150,15 +183,19 @@ ELSEIF p_read = abap_true.
 
                MESSAGE 'ISTENEN KAYITLAR BULUNAMADI' TYPE'S' DISPLAY LIKE 'E'.
 
-             ENDIF.
+              ENDIF.
 
-          ENDIF.
 
-     ELSE.
+      ENDIF.
 
-        SELECT  * FROM zko_deneme_t INTO TABLE  gt_table_1 WHERE  name = p_name.
 
-            IF sy-subrc = 0.
+           ELSEIF p_sname IS NOT INITIAL .
+
+             IF p_name IS INITIAL.
+
+                SELECT  * FROM zko_deneme_t INTO TABLE gt_table_1 WHERE surname = p_sname .
+
+                  IF sy-subrc = 0.
 
                 LOOP AT gt_table_1 INTO gs_str_01.
 
@@ -171,22 +208,42 @@ ELSEIF p_read = abap_true.
                   CLEAR gs_str_01.
                 ENDLOOP.
 
+                ELSE.
+
+                 MESSAGE 'ISTENEN KAYITLAR BULUNAMADI' TYPE'S' DISPLAY LIKE 'E'.
+
+                ENDIF.
              ELSE.
 
-               MESSAGE 'ISTENEN KAYITLAR BULUNAMADI' TYPE'S' DISPLAY LIKE 'E'.
+              SELECT  * FROM zko_deneme_t INTO TABLE gt_table_1 WHERE name = p_name AND
+                                                                  surname = p_sname.
 
-             ENDIF.
+                  IF sy-subrc = 0.
 
-        ENDIF.
+                     LOOP AT gt_table_1 INTO gs_str_01.
 
+                     WRITE:  / gs_str_01-num ,
+                     / gs_str_01-name ,
+                     / gs_str_01-surname,
+                     / gs_str_01-arac .
+                     SKIP.
+                     ULINE.
+                     CLEAR gs_str_01.
+                     ENDLOOP.
 
+                   ELSE.
+
+                   MESSAGE 'ISTENEN KAYITLAR BULUNAMADI' TYPE'S' DISPLAY LIKE 'E'.
+
+                  ENDIF.
+
+           ENDIF.
 
   ELSE .
 
-    SELECT  * FROM zko_deneme_t INTO TABLE gt_table_1 WHERE num = p_num .
+    SELECT SINGLE * FROM zko_deneme_t INTO gs_str_01 WHERE num = p_num .
 
-      IF sy-subrc = 0 .
-      LOOP.
+    IF sy-subrc = 0 .
 
       WRITE:    / gs_str_01-num ,
                 / gs_str_01-name ,
@@ -195,15 +252,15 @@ ELSEIF p_read = abap_true.
       SKIP.
       ULINE.
       CLEAR gs_str_01.
-      ENDLOOP.
-      ELSE.
+
+    ELSE.
 
       MESSAGE 'Girilen Numaraya ait bir kayıt bulunamadı.'TYPE 'S' DISPLAY LIKE'E'.
 
     ENDIF.
 
   ENDIF.
-
+ ENDIF.
 
 ELSEIF p_update = abap_true.
 
