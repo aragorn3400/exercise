@@ -4,7 +4,7 @@ Merhaba Mustafa ,benim sorum şu;Reuse alv gridde de save özelliğini açıp bi
                                 ile ilgili bir durumdur sence?
                                 
 *Variant-Search Helpte getirmek
-*1-Elimizdeki variyantları kayar pencerede görünür hale getirip kullanıcının birisini seçmesini sağlayacağız.Handle etmemiz gereken iki konu var;
+*1-Elimizdeki variyantları Search Helpte görünür hale getirip kullanıcının birisini seçmesini sağlayacağız.Handle etmemiz gereken iki konu var;
 *ilki parametremize default tanımlı varsa bunu yakalayıp göstermesini sağlamak.İkincisi ise;Diğer kayıtlı variantları search help olarak getirmek.
 *2-Önce parametre tanımlarız;PARAMETERS: p_vari TYPE disvariant-variant
 *3-INITIALIZATION altına parametrede önce default variantı yakalaması için REUSE_ALV_VARIANT_DEFAULT_GET fonsiyonunu çağırırız cs_variant için data
