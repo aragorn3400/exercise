@@ -81,7 +81,7 @@ START-OF-SELECTION.
   CALL FUNCTION 'REUSE_ALV_FIELDCATALOG_MERGE'
     EXPORTING
       i_program_name         = sy-repid
-*     i_internal_tabname     = 'GT_LIST'
+*     i_internal_tabname     = 'gt_table '
       i_structure_name       = 'ZKO_DENEME_T'
       i_inclname             = sy-repid
       i_bypassing_buffer     = 'X'
