@@ -1,0 +1,4 @@
+Merhaba Mustafa ,benim sorum şu;Reuse alv gridde de save özelliğini açıp birden çok variation tanımlayıp,bu variasyonların defaultunu parametrede yakalayıp,
+                                diğer variasyonları search help de göstererek kullanıcının birisini seçmesini sağlamak.Uygulayan birisinde izledim,birebir yaptım ama
+                                bende ne defaultu yakaladı ne de diğer variasyonları yakalayıp search helpe koydu.Bu benim kod ile mi yoksa kullandığımız gui'nin sürümü
+                                ile ilgili bir durumdur sence?
