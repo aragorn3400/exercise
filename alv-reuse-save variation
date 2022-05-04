@@ -2,3 +2,147 @@ Merhaba Mustafa ,benim sorum şu;Reuse alv gridde de save özelliğini açıp bi
                                 diğer variasyonları search help de göstererek kullanıcının birisini seçmesini sağlamak.Uygulayan birisinde izledim,birebir yaptım ama
                                 bende ne defaultu yakaladı ne de diğer variasyonları yakalayıp search helpe koydu.Bu benim kod ile mi yoksa kullandığımız gui'nin sürümü
                                 ile ilgili bir durumdur sence?
+                                
+*Variant-Search Helpte getirmek
+*1-Elimizdeki variyantları kayar pencerede görünür hale getirip kullanıcının birisini seçmesini sağlayacağız.Handle etmemiz gereken iki konu var;
+*ilki parametremize default tanımlı varsa bunu yakalayıp göstermesini sağlamak.İkincisi ise;Diğer kayıtlı variantları search help olarak getirmek.
+*2-Önce parametre tanımlarız;PARAMETERS: p_vari TYPE disvariant-variant
+*3-INITIALIZATION altına parametrede önce default variantı yakalaması için REUSE_ALV_VARIANT_DEFAULT_GET fonsiyonunu çağırırız cs_variant için data
+*       tanımlarız. If yapısını doldururuz.
+*4- INITIALIZATION başına raporumuzu gireriz;gs_variant_get-report = sy-repid.  Böylece ilk kısmı hallettik.
+*5-Search Help için;AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_vari.yazılıp altına REUSE_ALV_VARIANT_F4 fonksiyomu çağırılır ,gerekli yerler ve if doldurulur.
+*  At selection altınada raporumuz yazılması unulmaz;gs_variant_get-report = sy-repid.
+*6-Şimdi sıra bu yapıyı kendi displaydeki alv-grid fonksiyonumuza tanıtmak ve bağlamak. Bunun için is_variant karşısına tanımladığımız gs variantı
+*fonksiyon başında p_vari ye atarız;  gs_variant-variant = p_vari.
+
+REPORT zko_deneme_24.
+
+TYPES: BEGIN OF gty_table,
+         box TYPE c LENGTH 1.
+         INCLUDE  STRUCTURE zko_deneme_t.
+       TYPES:END OF gty_table.
+
+
+DATA:gt_table    TYPE TABLE OF gty_table,
+     gt_fieldcat TYPE slis_t_fieldcat_alv,
+     gs_layout   TYPE slis_layout_alv.
+
+DATA: gs_variant_get TYPE disvariant,
+      gs_variant     TYPE disvariant,
+      gv_exit        TYPE char1.
+
+PARAMETERS:p_vari TYPE disvariant-variant.
+
+INITIALIZATION.
+
+  gs_variant_get-report = sy-repid.
+
+  CALL FUNCTION 'REUSE_ALV_VARIANT_DEFAULT_GET'         "Default variantı yakalamak için
+    CHANGING
+      cs_variant    = gs_variant_get
+    EXCEPTIONS
+      wrong_input   = 1
+      not_found     = 2
+      program_error = 3
+      OTHERS        = 4.
+  IF sy-subrc = 0.
+    p_vari = gs_variant_get-variant.
+  ENDIF.
+
+  AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_vari.   "parametreye search help özelliği kazandırır.
+  gs_variant_get-report = sy-repid.
+
+  CALL FUNCTION 'REUSE_ALV_VARIANT_F4' "SEARCH help için
+    EXPORTING
+      is_variant    = gs_variant_get
+*     I_TABNAME_HEADER          =
+*     I_TABNAME_ITEM            =
+*     IT_DEFAULT_FIELDCAT       =
+*     I_SAVE        = ' '
+*     I_DISPLAY_VIA_GRID        = ' '
+    IMPORTING
+      e_exit        = gv_exit
+      es_variant    = gs_variant_get
+    EXCEPTIONS
+      not_found     = 1
+      program_error = 2
+      OTHERS        = 3.
+  IF sy-subrc EQ 0.
+    IF gv_exit IS INITIAL .
+      p_vari = gs_variant_get-variant.
+    ENDIF.
+   ENDIF.
+   
+   
+START-OF-SELECTION.
+
+  SELECT * FROM zko_deneme_t INTO CORRESPONDING FIELDS OF TABLE gt_table.
+
+  CALL FUNCTION 'REUSE_ALV_FIELDCATALOG_MERGE'
+    EXPORTING
+      i_program_name         = sy-repid
+*     i_internal_tabname     = 'GT_LIST'
+      i_structure_name       = 'ZKO_DENEME_T'
+      i_inclname             = sy-repid
+      i_bypassing_buffer     = 'X'
+    CHANGING
+      ct_fieldcat            = gt_fieldcat
+    EXCEPTIONS
+      inconsistent_interface = 1
+      program_error          = 2
+      OTHERS                 = 3.
+
+  gs_layout-colwidth_optimize = 'X'.
+  gs_layout-zebra = 'X'.
+  gs_layout-box_fieldname = 'BOX'.
+
+ gs_variant-variant = p_vari.
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'    
+    EXPORTING
+
+*     I_INTERFACE_CHECK  = ' '
+*     I_BYPASSING_BUFFER = ' '
+*     I_BUFFER_ACTIVE    = ' '
+      i_callback_program = 'ZKO_DENEME_T'    "sy-repid' de yazılabilir.
+*     i_callback_pf_status_set = 'PF_STATUS_SET'
+*     i_callback_user_command = 'USER_COMMAND'
+*     I_CALLBACK_TOP_OF_PAGE  = ' '
+*     I_CALLBACK_HTML_TOP_OF_PAGE       = ' '
+*     I_CALLBACK_HTML_END_OF_LIST       = ' '
+*     I_STRUCTURE_NAME   =
+*     I_BACKGROUND_ID    = ' '
+*     I_GRID_TITLE       =
+*     I_GRID_SETTINGS    =
+      is_layout          = gs_layout
+      it_fieldcat        = gt_fieldcat
+*     it_excluding       =
+*     IT_SPECIAL_GROUPS  =
+*     it_sort            =
+*     it_filter          =
+*     IS_SEL_HIDE        =
+*     i_default          = 'X'
+      i_save             = 'X'
+      is_variant         = gs_variant
+*     IT_EVENTS          =
+*     IT_EVENT_EXIT      =
+*     IS_PRINT           =
+*     IS_REPREP_ID       =
+*     I_SCREEN_START_COLUMN   = 0
+*     I_SCREEN_START_LINE     = 0
+*     I_SCREEN_END_COLUMN     = 0
+*     I_SCREEN_END_LINE  = 0
+*     I_HTML_HEIGHT_TOP  = 0
+*     I_HTML_HEIGHT_END  = 0
+*     IT_ALV_GRAPHICS    =
+*     IT_HYPERLINK       =
+*     IT_ADD_FIELDCAT    =
+*     IT_EXCEPT_QINFO    =
+*     IR_SALV_FULLSCREEN_ADAPTER        =
+* IMPORTING
+*     E_EXIT_CAUSED_BY_CALLER =
+*     ES_EXIT_CAUSED_BY_USER  =
+    TABLES
+      t_outtab           = gt_table
+    EXCEPTIONS
+      program_error      = 1
+      OTHERS             = 2.
