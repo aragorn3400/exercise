@@ -19,13 +19,17 @@ REPORT zko_deneme_24.
 
 TYPES: BEGIN OF gty_table,
          box TYPE c LENGTH 1.
-         INCLUDE  STRUCTURE zko_deneme_t.
+         INCLUDE  STRUCTURE zko_reuse_merge_s.
        TYPES:END OF gty_table.
 
+DATA: gt_list TYPE TABLE OF gty_table,
+      gs_list TYPE gty_table.
 
-DATA:gt_table    TYPE TABLE OF gty_table,
-     gt_fieldcat TYPE slis_t_fieldcat_alv,
-     gs_layout   TYPE slis_layout_alv.
+
+DATA: gt_fieldcatalog TYPE slis_t_fieldcat_alv,
+      gs_fieldcatalog TYPE slis_fieldcat_alv.
+
+DATA: gs_layout TYPE slis_layout_alv.
 
 DATA: gs_variant_get TYPE disvariant,
       gs_variant     TYPE disvariant,
@@ -49,7 +53,7 @@ INITIALIZATION.
     p_vari = gs_variant_get-variant.
   ENDIF.
 
-  AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_vari.   "parametreye search help özelliği kazandırır.
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_vari.   "parametreye search help özelliği kazandırır.
   gs_variant_get-report = sy-repid.
 
   CALL FUNCTION 'REUSE_ALV_VARIANT_F4' "SEARCH help için
@@ -71,22 +75,31 @@ INITIALIZATION.
     IF gv_exit IS INITIAL .
       p_vari = gs_variant_get-variant.
     ENDIF.
-   ENDIF.
-   
-   
+  ENDIF.
+
 START-OF-SELECTION.
 
-  SELECT * FROM zko_deneme_t INTO CORRESPONDING FIELDS OF TABLE gt_table.
+  SELECT    sflight~carrid        "Almak istediğimiz satırları yazıyoruz,structure ile aynı sırada yapmamız lazım
+          sflight~fldate
+          sflight~planetype
+          sflight~price
+          scarr~carrname
+          scarr~url
+          scarr~currcode
+
+        FROM sflight INNER JOIN scarr     "tabloları birleştiriyoruz
+        ON sflight~carrid EQ scarr~carrid  "ortak satırı veriyoruz,bu ortak olan satırları al diye
+        INTO CORRESPONDING FIELDS OF TABLE gt_list.                "aldığın satırları dahili tabloma at
 
   CALL FUNCTION 'REUSE_ALV_FIELDCATALOG_MERGE'
     EXPORTING
       i_program_name         = sy-repid
 *     i_internal_tabname     = 'gt_table '
-      i_structure_name       = 'ZKO_DENEME_T'
+      i_structure_name       = 'ZKO_REUSE_MERGE_S'
       i_inclname             = sy-repid
       i_bypassing_buffer     = 'X'
     CHANGING
-      ct_fieldcat            = gt_fieldcat
+      ct_fieldcat            = gt_fieldcatalog
     EXCEPTIONS
       inconsistent_interface = 1
       program_error          = 2
@@ -96,10 +109,11 @@ START-OF-SELECTION.
   gs_layout-zebra = 'X'.
   gs_layout-box_fieldname = 'BOX'.
 
- gs_variant-variant = p_vari.
-  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'    
-    EXPORTING
+*  gs_variant-variant = '/KAZIM2'.
+  gs_variant-variant = p_vari.
 
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+    EXPORTING
 *     I_INTERFACE_CHECK  = ' '
 *     I_BYPASSING_BUFFER = ' '
 *     I_BUFFER_ACTIVE    = ' '
@@ -114,7 +128,7 @@ START-OF-SELECTION.
 *     I_GRID_TITLE       =
 *     I_GRID_SETTINGS    =
       is_layout          = gs_layout
-      it_fieldcat        = gt_fieldcat
+      it_fieldcat        = gt_fieldcatalog
 *     it_excluding       =
 *     IT_SPECIAL_GROUPS  =
 *     it_sort            =
@@ -122,7 +136,7 @@ START-OF-SELECTION.
 *     IS_SEL_HIDE        =
 *     i_default          = 'X'
       i_save             = 'X'
-      is_variant         = gs_variant
+     is_variant         = gs_variant
 *     IT_EVENTS          =
 *     IT_EVENT_EXIT      =
 *     IS_PRINT           =
@@ -142,10 +156,7 @@ START-OF-SELECTION.
 *     E_EXIT_CAUSED_BY_CALLER =
 *     ES_EXIT_CAUSED_BY_USER  =
     TABLES
-      t_outtab           = gt_table
+      t_outtab           = gt_list
     EXCEPTIONS
       program_error      = 1
       OTHERS             = 2.
-      
-      
-      
