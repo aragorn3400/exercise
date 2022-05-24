@@ -74,7 +74,7 @@ INITIALIZATION.
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_vari.   "parametreye search help özelliği kazandırır.
   gs_variant_get-report = sy-repid.
 
-  CALL FUNCTION 'REUSE_ALV_VARIANT_F4' "SEARCH help için
+  CALL FUNCTION 'REUSE_ALV_VARIANT_F4'             "SEARCH help için
     EXPORTING
       is_variant    = gs_variant_get
 *     I_TABNAME_HEADER          =
