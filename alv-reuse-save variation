@@ -3,6 +3,24 @@ Merhaba Mustafa ,benim sorum şu;Reuse alv gridde de save özelliğini açıp bi
                                 bende ne defaultu yakaladı ne de diğer variasyonları yakalayıp search helpe koydu.Bu benim kod ile mi yoksa kullandığımız gui'nin sürümü
                                 ile ilgili bir durumdur sence?
                                 
+--------------    Bu kısmı öncesine bakman için bilgi amaçlı gönderiyorum   ----------------                         
+*Save;
+*1-Tabloda yaptığımız Sort ,Exlud,fitre,kolon kaldırma gibi değişiklikleri kaydedebildiğimiz özellik.
+*2-Reause alv  Grid  diplay fonksiyonunda i_save bölümü aktive edilir.Karşısına 'X';standart-'U';Kullanıcıya bağlı-'A';Her ikiside seçeneklerinden birisi
+*yazılır.
+*3-Save aktive edilip program  çalıştırılınca yukarda choose layout ve save layout isimli iki ikon geldi,save layottta istediğimi variationları yapıp
+*save edebiliriz choose  layoutta bu variosyanlardan istediğimizi seçebiliriz.Default Setting;hangisi tabloyu açtığımızda karşımıza gelmesini istiyorsak
+*seçeriz
+*4-İ_save ipral etsen bile hafızasındaki variation2lar kalıyot o nedenle defaulta değşmeden çnceki ilk halini yapmak yada bir variationa ilk halini kaydetmek
+*mantıklı olabilir.
+
+*variant;
+*1-oluşturduğumuz variantlardan dafault  özelliğini kazandırmayı programdan is_variant aktive edip karşısına yazarakta yapabiliyoruz. Bu gereksiz gibi görünse-
+*de bir sonraki adımda Search Helpte yakalamamız için ihtiyaç olacak.
+*2-İs_varİant için data tanımlayıp karşısına yazınca ve Reause alv  Grid fomksiyonu üzerine   gs_variant-variant = '/KAZIM2'. yazıp karşısına istediğimiz
+*variaıntı yazarsak o variant artık defaul olur,önce yaptığımız default seçimini burda ezeriz.
+---------------  Bu kısmı öncesine bakman için bilgi amaçlı gönderiyorum   -------------------                           
+                                
 *Variant-Search Helpte getirmek
 *1-Elimizdeki variyantları Search Helpte görünür hale getirip kullanıcının birisini seçmesini sağlayacağız.Handle etmemiz gereken iki konu var;
 *ilki parametremize default tanımlı varsa bunu yakalayıp göstermesini sağlamak.İkincisi ise;Diğer kayıtlı variantları search help olarak getirmek.
